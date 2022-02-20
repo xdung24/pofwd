@@ -1,25 +1,20 @@
 
 # release base
-FROM golang:1.17-alpine as release-base
+FROM golang:1.17-alpine as builder-base
 RUN apk update
-# install dependency here
-
-# builder-base
-FROM release-base as builder-base
 RUN apk add build-base
+# install dependency here
 
 # builder
 FROM builder-base AS builder
 RUN mkdir /build
-ADD . /build/
+COPY . /build/
 WORKDIR /build
-COPY go.mod ./
-COPY go.sum ./
 RUN go mod download
-RUN go build -o /pofwd
+RUN GOOS=linux GOARCH=386 CGO_ENABLED=0 go build -ldflags="-w -s" -o /build/pofwd
 
 # release 
-FROM release-base AS release
+FROM scratch AS release
 WORKDIR /go/bin
-COPY --from=builder /pofwd /go/bin/pofwd
+COPY --from=builder /build/pofwd /go/bin/pofwd
 ENTRYPOINT [ "/go/bin/pofwd" ]
