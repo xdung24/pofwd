@@ -16,5 +16,5 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o /build/po
 # release 
 FROM scratch AS release
 WORKDIR /go/bin
-COPY --from=builder /build/pofwd /go/bin/pofwd
-CMD [ "/go/bin/pofwd", "/root/pofwd.conf"]
+COPY --from=builder /build/pofwd /usr/bin/pofwd
+CMD [ "pofwd", "/pofwd.conf"]
